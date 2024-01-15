@@ -1,6 +1,8 @@
 #include "game.h"
 
 u8* map;
+f32* vertices;
+u32* indices;
 
 void game_init() 
 {   
@@ -12,7 +14,7 @@ void game_init()
     }
 }
 
-void game_update()
+void game_render()
 {
 
 }
