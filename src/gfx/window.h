@@ -2,7 +2,7 @@
 #define WINDOW_H
 
 #include "gfx.h"
-#include "renderer.h"
+#include "../game/game.h"
 
 #define DEFAULT_WINDOW_WIDTH 300
 #define DEFAULT_WINDOW_HEIGHT 300

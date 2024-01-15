@@ -22,7 +22,7 @@ void window_init()
     // glEnable(GL_CULL_FACE); 
     // glCullFace(GL_FRONT); 
 
-    renderer_init();
+    game_init();
 }
 
 void window_loop()
@@ -30,7 +30,7 @@ void window_loop()
     while (!glfwWindowShouldClose(window))
     {
         process_input();
-        renderer_render();
+        game_render();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -40,7 +40,7 @@ void window_loop()
 void window_exit()
 {
     glfwTerminate();
-    renderer_exit();
+    game_exit();
 }
 
 void process_input()

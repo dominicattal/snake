@@ -12,5 +12,6 @@ typedef struct Shader Shader;
 
 Shader shader_init(char* vs_path, char* fs_path);
 void shader_use(Shader shader);
+void shader_destroy(Shader shader);
 
 #endif

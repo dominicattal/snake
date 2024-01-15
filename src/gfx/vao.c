@@ -17,3 +17,8 @@ void vao_attr(u8 index, u8 count, u32 size, void* offset)
     glVertexAttribPointer(index, count, GL_FLOAT, GL_FALSE, size, offset);
     glEnableVertexAttribArray(index);
 }
+
+void vao_destroy(VAO vao)
+{
+    glDeleteVertexArrays(1, &vao.ID);
+}

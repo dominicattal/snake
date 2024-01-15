@@ -17,3 +17,8 @@ void vbo_buffer(VBO vbo, u32 size, void* data)
 {
     glBufferData(vbo.type, size, data, GL_STATIC_DRAW);
 }
+
+void vbo_destroy(VBO vbo)
+{
+    glDeleteBuffers(1, &vbo.ID);
+}

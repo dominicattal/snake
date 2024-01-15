@@ -7,3 +7,4 @@ for /R .\src %%f in (*) do (
 )
 gcc -Wall -I./lib/glad/include -I./lib/ht/include -I./lib/glfw/include -I./lib/stb/include -L./lib/glfw/link %Cfiles% -lglfw3dll -o prog
 prog
+del prog
