@@ -6,9 +6,14 @@
 #include "../gfx/vbo.h"
 #include "../util/util.h"
 
-#define MAP_WIDTH 11
-#define MAP_HEIGHT 11
+#define MAP_WIDTH 21
+#define MAP_HEIGHT 21
 #define NUM_TILES (MAP_WIDTH * MAP_HEIGHT)
+
+typedef struct Node {
+    u32 idx;
+    struct Node* next;
+} Node;
 
 struct Game
 {
@@ -20,11 +25,15 @@ struct Game
     VBO vbo, ebo;
     f32 game_speed;
     f32 last_move;
-    Queue* snake_head;
-    Queue* snake_tail;
+    u8 snake_direction;
+    Node* snake_head;
+    Node* snake_tail;
+    bool playing;
 };
 
 typedef struct Game Game;
+
+void game_set_direction(u8 direction);
 
 void game_init();
 void game_update();
