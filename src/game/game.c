@@ -12,6 +12,43 @@ static void print_map()
     }
 }
 
+static void init_vertex_data()
+{
+    game.map = calloc(NUM_TILES, sizeof(u8));
+    game.vertices = calloc(5 * 4 * NUM_TILES, sizeof(f32));
+    game.indices = calloc(6 * NUM_TILES, sizeof(u32));
+}
+
+static void init_map()
+{
+    for (int i = 0; i < MAP_WIDTH; i++)
+        game.map[i] = game.map[MAP_WIDTH * (MAP_HEIGHT - 1) + i] = 1;
+
+    for (int i = 0; i < MAP_HEIGHT; i++)
+        game.map[MAP_WIDTH * i] = game.map[MAP_WIDTH * i + MAP_WIDTH - 1] = 1;
+}
+
+static void init_snake()
+{
+    game.snake_direction = 4;
+    game.query_direction = 4;
+    int snake_head_idx = (MAP_HEIGHT / 2) * (MAP_WIDTH) + MAP_WIDTH / 2;
+    game.map[snake_head_idx] = 2;
+    game.snake_head = game.snake_tail = malloc(sizeof(Node));
+    game.snake_head->idx = snake_head_idx;
+    game.snake_head->next = NULL;
+}
+
+static void init_game_gfx()
+{
+    game.shader = shader_init("src/shaders/vertex.sl", "src/shaders/fragment.sl");
+    shader_use(game.shader);
+
+    game.vao = vao_init();
+    game.vbo = vbo_init(GL_ARRAY_BUFFER);
+    game.ebo = vbo_init(GL_ELEMENT_ARRAY_BUFFER);
+}
+
 static void update_vertex_data()
 {
     for (int tile_idx = 0; tile_idx < NUM_TILES; tile_idx++)
@@ -89,9 +126,9 @@ static void update_vertex_data()
     vao_attr(1, 3, 5 * sizeof(f32), (void*)(2 * sizeof(f32)));
 }
 
-static void game_set_direction()
+static void set_snake_direction()
 {
-    if (game.query_direction == 5)
+    if (game.query_direction == 4)
         return;
     if (game.snake_direction == 0 && game.query_direction != 2)
         game.snake_direction = game.query_direction;
@@ -101,15 +138,72 @@ static void game_set_direction()
         game.snake_direction = game.query_direction;
     if (game.snake_direction == 3 && game.query_direction != 1)
         game.snake_direction = game.query_direction;
-    game.query_direction = 5;
+    if (game.snake_direction == 4)
+        game.snake_direction = game.query_direction;
+    game.query_direction = 4;
 }
 
-static void game_create_food()
+static void create_food()
 {
     u32 food_idx = rand_range(NUM_TILES);
     while (game.map[food_idx] != 0)
         food_idx = rand_range(NUM_TILES);
     game.map[food_idx] = 3;
+}
+
+static bool snake_started_moving()
+{
+    return game.snake_direction != 4;
+}
+
+static void update_map()
+{
+    Node* new_snake_head = malloc(sizeof(Node));
+    u32 new_snake_head_idx = game.snake_head->idx;
+    switch (game.snake_direction)
+    {
+        case 0:
+            new_snake_head_idx += MAP_WIDTH;
+            break;
+        case 1:
+            new_snake_head_idx += 1;
+            break;
+        case 2:
+            new_snake_head_idx -= MAP_WIDTH;
+            break;
+        case 3:
+            new_snake_head_idx -= 1;
+            break;
+    }
+    assert(new_snake_head_idx >= 0 && new_snake_head_idx < NUM_TILES);
+    
+    switch (game.map[new_snake_head_idx])
+    {
+        case 0:
+            // empty space
+            new_snake_head->idx = new_snake_head_idx;
+            new_snake_head->next = NULL;
+            game.snake_head->next = new_snake_head;
+            game.snake_head = new_snake_head;
+            game.map[new_snake_head_idx] = 2;
+            game.map[game.snake_tail->idx] = 0;
+            free(game.snake_tail);
+            Node* new_snake_tail = game.snake_tail->next;
+            game.snake_tail = new_snake_tail;
+            break;
+        case 3:
+            // food
+            new_snake_head->idx = new_snake_head_idx;
+            new_snake_head->next = NULL;
+            game.snake_head->next = new_snake_head;
+            game.snake_head = new_snake_head;
+            game.map[new_snake_head_idx] = 2;
+            create_food();
+            break;
+        default:
+            // hits wall or snake
+            game.playing = false;
+    }
 }
 
 void game_query_direction(u8 direction)
@@ -119,44 +213,17 @@ void game_query_direction(u8 direction)
 
 void game_init() 
 {   
-    rand_init();
-
     game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
-    game.snake_direction = 1;
-    game.query_direction = 5;
     game.playing = true;
 
-    game.map = calloc(NUM_TILES, sizeof(u8));
-    game.vertices = calloc(5 * 4 * NUM_TILES, sizeof(f32));
-    game.indices = calloc(6 * NUM_TILES, sizeof(u32));
-
-    // map init
-    for (int i = 0; i < MAP_WIDTH; i++)
-        game.map[i] = game.map[MAP_WIDTH * (MAP_HEIGHT - 1) + i] = 1;
-
-    for (int i = 0; i < MAP_HEIGHT; i++)
-        game.map[MAP_WIDTH * i] = game.map[MAP_WIDTH * i + MAP_WIDTH - 1] = 1;
-
-    // snake init
-    int snake_head_idx = (MAP_HEIGHT / 2) * (MAP_WIDTH) + MAP_WIDTH / 2;
-    game.map[snake_head_idx] = 2;
-    game.snake_head = game.snake_tail = malloc(sizeof(Node));
-    game.snake_head->idx = snake_head_idx;
-    game.snake_head->next = NULL;
-
-    // food init
-    game_create_food();
-
-    // gfx init
-    game.shader = shader_init("src/shaders/vertex.sl", "src/shaders/fragment.sl");
-    shader_use(game.shader);
-
-    game.vao = vao_init();
-    game.vbo = vbo_init(GL_ARRAY_BUFFER);
-    game.ebo = vbo_init(GL_ELEMENT_ARRAY_BUFFER);
-
-    // vertex data init
+    rand_init();
+    init_vertex_data();
+    init_map();
+    init_snake();
+    create_food();
+    init_game_gfx();
+    
     update_vertex_data();
 }
 
@@ -164,49 +231,10 @@ void game_update()
 {
     if (game.playing && glfwGetTime() > game.last_move + game.game_speed)
     {
-        game_set_direction();
-        Node* new_snake_head = malloc(sizeof(Node));
-        int new_snake_head_idx;
-        switch (game.snake_direction)
-        {
-            case 0:
-                new_snake_head_idx = game.snake_head->idx + MAP_WIDTH;
-                break;
-            case 1:
-                new_snake_head_idx = game.snake_head->idx + 1;
-                break;
-            case 2:
-                new_snake_head_idx = game.snake_head->idx - MAP_WIDTH;
-                break;
-            case 3:
-                new_snake_head_idx = game.snake_head->idx - 1;
-                break;
-        }
-        assert(new_snake_head_idx >= 0 && new_snake_head_idx < NUM_TILES);
-        new_snake_head->idx = new_snake_head_idx;
-        new_snake_head->next = NULL;
-        game.snake_head->next = new_snake_head;
-        game.snake_head = new_snake_head;
-        switch (game.map[new_snake_head_idx])
-        {
-            case 0:
-                // empty space
-                game.map[new_snake_head_idx] = 2;
-                game.map[game.snake_tail->idx] = 0;
-                free(game.snake_tail);
-                Node* new_snake_tail = game.snake_tail->next;
-                game.snake_tail = new_snake_tail;
-                break;
-            case 3:
-                // food
-                game.map[new_snake_head_idx] = 2;
-                game_create_food();
-                break;
-            default:
-                // hits wall or snake
-                game.playing = false;
-        }
-
+        set_snake_direction();
+        if (!snake_started_moving())
+            return;
+        update_map();
         update_vertex_data();
         game.last_move = glfwGetTime();
     }

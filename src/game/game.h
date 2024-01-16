@@ -30,6 +30,7 @@ struct Game
     Node* snake_head;
     Node* snake_tail;
     bool playing;
+    FILE* game_log;
 };
 
 typedef struct Game Game;
