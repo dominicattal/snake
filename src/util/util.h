@@ -22,4 +22,13 @@ typedef GLhalf    f16;
 typedef GLfloat   f32;
 typedef GLdouble  f64;
 
+typedef struct Color {
+    f32 r, g, b;
+} Color;
+
+typedef struct Queue {
+    u32 val;
+    struct Queue* next;
+} Queue;
+
 #endif

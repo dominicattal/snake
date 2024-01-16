@@ -6,10 +6,9 @@
 #include "../gfx/vbo.h"
 #include "../util/util.h"
 
-#define MAP_WIDTH 5
-#define MAP_HEIGHT 5
+#define MAP_WIDTH 11
+#define MAP_HEIGHT 11
 #define NUM_TILES (MAP_WIDTH * MAP_HEIGHT)
-#define NUM_VERTICES ((MAP_WIDTH + 1) * (MAP_HEIGHT + 1))
 
 struct Game
 {
@@ -19,11 +18,16 @@ struct Game
     Shader shader;
     VAO vao;
     VBO vbo, ebo;
+    f32 game_speed;
+    f32 last_move;
+    Queue* snake_head;
+    Queue* snake_tail;
 };
 
 typedef struct Game Game;
 
 void game_init();
+void game_update();
 void game_render();
 void game_exit();
 
