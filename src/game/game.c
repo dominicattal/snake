@@ -30,6 +30,7 @@ static void init_map()
 
 static void init_snake()
 {
+    game.snake_length = 1;
     game.snake_direction = 4;
     game.query_direction = 4;
     int snake_head_idx = (MAP_HEIGHT / 2) * (MAP_WIDTH) + MAP_WIDTH / 2;
@@ -149,6 +150,12 @@ static void create_food()
     while (game.map[food_idx] != 0)
         food_idx = rand_range(NUM_TILES);
     game.map[food_idx] = 3;
+    game.food_idx = food_idx;
+}
+
+static void create_food_at(u32 food_idx)
+{
+    game.map[food_idx] = 3;
 }
 
 static bool snake_started_moving()
@@ -216,6 +223,7 @@ void game_init()
     game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
     game.playing = true;
+    game.log = fopen("logs/log.txt", "w");
 
     rand_init();
     init_vertex_data();
@@ -223,7 +231,7 @@ void game_init()
     init_snake();
     create_food();
     init_game_gfx();
-    
+
     update_vertex_data();
 }
 
@@ -231,12 +239,14 @@ void game_update()
 {
     if (game.playing && glfwGetTime() > game.last_move + game.game_speed)
     {
+        fprintf(game.log, "%d %d\n", game.query_direction, game.food_idx);
         set_snake_direction();
+        game.last_move = glfwGetTime();
         if (!snake_started_moving())
             return;
         update_map();
         update_vertex_data();
-        game.last_move = glfwGetTime();
+        
     }
 }
 
@@ -256,4 +266,5 @@ void game_exit()
     vao_destroy(game.vao);
     vbo_destroy(game.vbo);
     vbo_destroy(game.ebo);
+    fclose(game.log);
 }

@@ -27,10 +27,12 @@ struct Game
     f32 last_move;
     u8 snake_direction;
     u8 query_direction;
+    u32 snake_length;
     Node* snake_head;
     Node* snake_tail;
     bool playing;
-    FILE* game_log;
+    FILE* log;
+    u32 food_idx;
 };
 
 typedef struct Game Game;
