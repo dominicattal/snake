@@ -26,6 +26,7 @@ struct Game
     f32 game_speed;
     f32 last_move;
     u8 snake_direction;
+    u8 query_direction;
     Node* snake_head;
     Node* snake_tail;
     bool playing;
@@ -33,7 +34,7 @@ struct Game
 
 typedef struct Game Game;
 
-void game_set_direction(u8 direction);
+void game_query_direction(u8 direction);
 
 void game_init();
 void game_update();

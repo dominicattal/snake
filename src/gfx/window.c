@@ -59,13 +59,15 @@ void process_input()
     if (glfwGetKey(window.handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window.handle, true);
     if (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS)
-        game_set_direction(2);
+        game_query_direction(2);
     if (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS)
-        game_set_direction(0);
+        game_query_direction(0);
     if (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS)
-        game_set_direction(3);
+        game_query_direction(3);
     if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS)
-        game_set_direction(1);
+        game_query_direction(1);
+    if (glfwGetKey(window.handle, GLFW_KEY_R) == GLFW_PRESS)
+        game_init();
 }
 
 void framebuffer_size_callback(GLFWwindow* window, s32 width, s32 height)
