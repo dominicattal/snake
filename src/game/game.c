@@ -104,6 +104,14 @@ static void game_set_direction()
     game.query_direction = 5;
 }
 
+static void game_create_food()
+{
+    u32 food_idx = rand_range(NUM_TILES);
+    while (game.map[food_idx] != 0)
+        food_idx = rand_range(NUM_TILES);
+    game.map[food_idx] = 3;
+}
+
 void game_query_direction(u8 direction)
 {
     game.query_direction = direction;
@@ -111,7 +119,9 @@ void game_query_direction(u8 direction)
 
 void game_init() 
 {   
-    game.game_speed = 0.1; // how often snake moves in s
+    rand_init();
+
+    game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
     game.snake_direction = 1;
     game.query_direction = 5;
@@ -136,8 +146,7 @@ void game_init()
     game.snake_head->next = NULL;
 
     // food init
-    game.map[37] = 3;
-    game.map[85] = 3;
+    game_create_food();
 
     // gfx init
     game.shader = shader_init("src/shaders/vertex.sl", "src/shaders/fragment.sl");
@@ -191,6 +200,7 @@ void game_update()
             case 3:
                 // food
                 game.map[new_snake_head_idx] = 2;
+                game_create_food();
                 break;
             default:
                 // hits wall or snake

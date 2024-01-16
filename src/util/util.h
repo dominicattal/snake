@@ -8,5 +8,6 @@
 #include <string.h>
 #include "type.h"
 #include "color.h"
+#include "random.h"
 
 #endif
