@@ -213,40 +213,74 @@ static void update_map()
     }
 }
 
+static void get_next_line()
+{
+    char c = '0';
+    char line[10];
+    u32 idx = 0;
+    c = fgetc(game.log);
+    if (c == EOF)
+    {
+        game.playing = false;
+        return;
+    }
+    while (c != '\n')
+    {
+        line[idx++] = c;
+        c = fgetc(game.log);
+    }
+    char* output;
+    u32 dir = strtol(&line[0], &output, 10);
+    u32 food_idx = strtol(&line[2], &output, 10);
+    game_query_direction(dir);
+    create_food_at(food_idx);
+}
+
 void game_query_direction(u8 direction)
 {
     game.query_direction = direction;
 }
 
-void game_init() 
+void game_init(u32 argc, char** argv) 
 {   
     game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
     game.playing = true;
-    game.log = fopen("logs/log.txt", "w");
 
     rand_init();
     init_vertex_data();
     init_map();
     init_snake();
-    create_food();
     init_game_gfx();
+
+    if (argc == 1)
+    {
+        game.log = fopen("logs/log.txt", "w");
+        create_food();
+    }
+    else 
+    {
+        game.log = fopen("logs/log.txt", "r");
+        get_next_line();
+    }
 
     update_vertex_data();
 }
 
-void game_update()
+void game_update(u32 argc, char** argv)
 {
     if (game.playing && glfwGetTime() > game.last_move + game.game_speed)
     {
-        fprintf(game.log, "%d %d\n", game.query_direction, game.food_idx);
+        if (argc == 1)
+            fprintf(game.log, "%d %d\n", game.query_direction, game.food_idx);
+        else
+            get_next_line();
         set_snake_direction();
         game.last_move = glfwGetTime();
         if (!snake_started_moving())
             return;
         update_map();
         update_vertex_data();
-        
     }
 }
 

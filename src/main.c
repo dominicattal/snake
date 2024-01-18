@@ -1,9 +1,10 @@
-#include <stdio.h>
+#include "util/util.h"
 #include "gfx/window.h"
 
-int main() 
+int main(int argc, char** argv) 
 {
-    window_init();
-    window_loop();
+    assert(argc <= 2);
+    window_init(argc, argv);
+    window_loop(argc, argv);
     return 0;
 }

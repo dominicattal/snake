@@ -2,7 +2,7 @@
 
 Window window;
 
-void window_init()
+void window_init(u32 argc, char** argv)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -17,15 +17,15 @@ void window_init()
     gladLoadGL(glfwGetProcAddress);
     glViewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 
-    game_init();
+    game_init(argc, argv);
 }
 
-void window_loop()
+void window_loop(u32 argc, char** argv)
 {
     while (!glfwWindowShouldClose(window.handle))
     {
-        process_input();
-        game_update();
+        process_input(argc, argv);
+        game_update(argc, argv);
         game_render();
         glfwSwapBuffers(window.handle);
         glfwPollEvents();
@@ -33,13 +33,13 @@ void window_loop()
     window_exit();
 }
 
-void window_exit()
+void window_exit(u32 argc, char** argv)
 {
     glfwTerminate();
     game_exit();
 }
 
-void process_input()
+void process_input(u32 argc, char** argv)
 {
     if (glfwGetKey(window.handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window.handle, true);
@@ -52,7 +52,7 @@ void process_input()
     if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS)
         game_query_direction(1);
     if (glfwGetKey(window.handle, GLFW_KEY_R) == GLFW_PRESS)
-        game_init();
+        game_init(argc, argv);
 }
 
 
