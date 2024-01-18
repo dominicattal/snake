@@ -25,7 +25,7 @@ void window_loop(u32 argc, char** argv)
     while (!glfwWindowShouldClose(window.handle))
     {
         process_input(argc, argv);
-        game_update(argc, argv);
+        game_update();
         game_render();
         glfwSwapBuffers(window.handle);
         glfwPollEvents();

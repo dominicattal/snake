@@ -32,6 +32,7 @@ struct Game
     Node* snake_tail;
     bool playing;
     FILE* log;
+    char mode;
     u32 food_idx;
 };
 
@@ -40,7 +41,7 @@ typedef struct Game Game;
 void game_query_direction(u8 direction);
 
 void game_init(u32 argc, char** argv);
-void game_update(u32 argc, char** argv);
+void game_update();
 void game_render();
 void game_exit();
 

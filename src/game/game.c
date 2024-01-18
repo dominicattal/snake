@@ -205,7 +205,8 @@ static void update_map()
             game.snake_head->next = new_snake_head;
             game.snake_head = new_snake_head;
             game.map[new_snake_head_idx] = 2;
-            create_food();
+            if (game.mode == 'w')
+                create_food();
             break;
         default:
             // hits wall or snake
@@ -256,22 +257,24 @@ void game_init(u32 argc, char** argv)
     if (argc == 1)
     {
         game.log = fopen("logs/log.txt", "w");
+        game.mode = 'w';
         create_food();
     }
     else 
     {
         game.log = fopen("logs/log.txt", "r");
+        game.mode = 'r';
         get_next_line();
     }
 
     update_vertex_data();
 }
 
-void game_update(u32 argc, char** argv)
+void game_update()
 {
     if (game.playing && glfwGetTime() > game.last_move + game.game_speed)
     {
-        if (argc == 1)
+        if (game.mode == 'w')
             fprintf(game.log, "%d %d\n", game.query_direction, game.food_idx);
         else
             get_next_line();
