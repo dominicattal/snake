@@ -146,16 +146,14 @@ static void set_snake_direction()
 
 static void create_food()
 {
-    u32 food_idx = rand_range(NUM_TILES);
-    while (game.map[food_idx] != 0)
-        food_idx = rand_range(NUM_TILES);
-    game.map[food_idx] = 3;
-    game.food_idx = food_idx;
-}
-
-static void create_food_at(u32 food_idx)
-{
-    game.map[food_idx] = 3;
+    if (game.mode == 'w')
+    {
+        u32 food_idx = rand_range(NUM_TILES);
+        while (game.map[food_idx] != 0)
+            food_idx = rand_range(NUM_TILES);
+        game.food_idx = food_idx;
+    }
+    game.map[game.food_idx] = 3;
 }
 
 static bool snake_started_moving()
@@ -204,6 +202,7 @@ static void update_map()
             new_snake_head->next = NULL;
             game.snake_head->next = new_snake_head;
             game.snake_head = new_snake_head;
+            game.snake_length++;
             game.map[new_snake_head_idx] = 2;
             if (game.mode == 'w')
                 create_food();
@@ -232,9 +231,9 @@ static void get_next_line()
     }
     char* output;
     u32 dir = strtol(&line[0], &output, 10);
-    u32 food_idx = strtol(&line[2], &output, 10);
+    game.food_idx = strtol(&line[2], &output, 10);
     game_query_direction(dir);
-    create_food_at(food_idx);
+    create_food();
 }
 
 void game_query_direction(u8 direction)

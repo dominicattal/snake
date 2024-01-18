@@ -43,14 +43,17 @@ void process_input(u32 argc, char** argv)
 {
     if (glfwGetKey(window.handle, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window.handle, true);
-    if (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS)
-        game_query_direction(2);
-    if (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS)
-        game_query_direction(0);
-    if (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS)
-        game_query_direction(3);
-    if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS)
-        game_query_direction(1);
+    if (argc == 1)
+    {
+        if (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS)
+            game_query_direction(2);
+        if (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS)
+            game_query_direction(0);
+        if (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS)
+            game_query_direction(3);
+        if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS)
+            game_query_direction(1);
+    }
     if (glfwGetKey(window.handle, GLFW_KEY_R) == GLFW_PRESS)
         game_init(argc, argv);
 }
