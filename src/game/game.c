@@ -50,73 +50,82 @@ static void init_game_gfx()
     game.ebo = vbo_init(GL_ELEMENT_ARRAY_BUFFER);
 }
 
+static Color get_tile_color(u32 tile_idx)
+{
+    Color tile_color;
+    switch (game.map[tile_idx])
+    {
+        case 1:
+            tile_color.r = 0.6;
+            tile_color.g = 0.3;
+            tile_color.b = 0.2;
+            break;
+        case 2:
+            tile_color.r = 0;
+            tile_color.g = 0.3;
+            tile_color.b = 0.6;
+            break;
+        case 3:
+            tile_color.r = 0.7;
+            tile_color.g = 0.7;
+            tile_color.b = 0;
+            break;
+        default:
+            tile_color.r = 0.5;
+            tile_color.g = 0.5;
+            tile_color.b = 0.5;
+    }
+    return tile_color;
+}
+
+static void update_tile_vertex_data(u32 tile_idx)
+{
+    // indices
+    game.indices[6 * tile_idx    ] = 4 * tile_idx + 1;
+    game.indices[6 * tile_idx + 1] = 4 * tile_idx + 3;
+    game.indices[6 * tile_idx + 2] = 4 * tile_idx;
+    game.indices[6 * tile_idx + 3] = 4 * tile_idx + 3;
+    game.indices[6 * tile_idx + 4] = 4 * tile_idx + 2;
+    game.indices[6 * tile_idx + 5] = 4 * tile_idx;
+
+    // vertices
+    int row = tile_idx / MAP_WIDTH, col = tile_idx % MAP_WIDTH; 
+    int top_left_vertex_idx, top_right_vertex_idx, bottom_left_vertex_idx, bottom_right_vertex_idx;
+    top_left_vertex_idx     = 5 * 4 * tile_idx;
+    top_right_vertex_idx    = 5 * 4 * tile_idx + 5;
+    bottom_left_vertex_idx  = 5 * 4 * tile_idx + 10;
+    bottom_right_vertex_idx = 5 * 4 * tile_idx + 15;
+
+    // coordinates
+    game.vertices[top_left_vertex_idx    ]     = (f32)(col    ) / MAP_WIDTH * 2 - 1;
+    game.vertices[top_left_vertex_idx + 1]     = - ((f32)(row    ) / MAP_WIDTH * 2 - 1);
+    game.vertices[top_right_vertex_idx    ]    = (f32)(col + 1) / MAP_WIDTH * 2 - 1;
+    game.vertices[top_right_vertex_idx + 1]    = - ((f32)(row    ) / MAP_WIDTH * 2 - 1);
+    game.vertices[bottom_left_vertex_idx    ]  = (f32)(col    ) / MAP_WIDTH * 2 - 1;
+    game.vertices[bottom_left_vertex_idx + 1]  = - ((f32)(row + 1) / MAP_WIDTH * 2 - 1);        
+    game.vertices[bottom_right_vertex_idx    ] = (f32)(col + 1) / MAP_WIDTH * 2 - 1;
+    game.vertices[bottom_right_vertex_idx + 1] = - ((f32)(row + 1) / MAP_WIDTH * 2 - 1);
+    
+    // color
+    Color tile_color = get_tile_color(tile_idx);
+    game.vertices[top_left_vertex_idx + 2]     = tile_color.r;
+    game.vertices[top_left_vertex_idx + 3]     = tile_color.g;
+    game.vertices[top_left_vertex_idx + 4]     = tile_color.b;
+    game.vertices[top_right_vertex_idx + 2]    = tile_color.r;
+    game.vertices[top_right_vertex_idx + 3]    = tile_color.g;
+    game.vertices[top_right_vertex_idx + 4]    = tile_color.b;
+    game.vertices[bottom_left_vertex_idx + 2]  = tile_color.r;
+    game.vertices[bottom_left_vertex_idx + 3]  = tile_color.g;
+    game.vertices[bottom_left_vertex_idx + 4]  = tile_color.b;
+    game.vertices[bottom_right_vertex_idx + 2] = tile_color.r;
+    game.vertices[bottom_right_vertex_idx + 3] = tile_color.g;
+    game.vertices[bottom_right_vertex_idx + 4] = tile_color.b;
+}
+
 static void update_vertex_data()
 {
-    for (int tile_idx = 0; tile_idx < NUM_TILES; tile_idx++)
-    {
-        // indices
-        game.indices[6 * tile_idx    ] = 4 * tile_idx + 1;
-        game.indices[6 * tile_idx + 1] = 4 * tile_idx + 3;
-        game.indices[6 * tile_idx + 2] = 4 * tile_idx;
-        game.indices[6 * tile_idx + 3] = 4 * tile_idx + 3;
-        game.indices[6 * tile_idx + 4] = 4 * tile_idx + 2;
-        game.indices[6 * tile_idx + 5] = 4 * tile_idx;
-
-        // vertices
-        int row = tile_idx / MAP_WIDTH, col = tile_idx % MAP_WIDTH; 
-        int top_left_vertex_idx, top_right_vertex_idx, bottom_left_vertex_idx, bottom_right_vertex_idx;
-        top_left_vertex_idx     = 5 * 4 * tile_idx;
-        top_right_vertex_idx    = 5 * 4 * tile_idx + 5;
-        bottom_left_vertex_idx  = 5 * 4 * tile_idx + 10;
-        bottom_right_vertex_idx = 5 * 4 * tile_idx + 15;
-
-        // coordinates
-        game.vertices[top_left_vertex_idx    ]     = (f32)(col    ) / MAP_WIDTH * 2 - 1;
-        game.vertices[top_left_vertex_idx + 1]     = - ((f32)(row    ) / MAP_WIDTH * 2 - 1);
-        game.vertices[top_right_vertex_idx    ]    = (f32)(col + 1) / MAP_WIDTH * 2 - 1;
-        game.vertices[top_right_vertex_idx + 1]    = - ((f32)(row    ) / MAP_WIDTH * 2 - 1);
-        game.vertices[bottom_left_vertex_idx    ]  = (f32)(col    ) / MAP_WIDTH * 2 - 1;
-        game.vertices[bottom_left_vertex_idx + 1]  = - ((f32)(row + 1) / MAP_WIDTH * 2 - 1);        
-        game.vertices[bottom_right_vertex_idx    ] = (f32)(col + 1) / MAP_WIDTH * 2 - 1;
-        game.vertices[bottom_right_vertex_idx + 1] = - ((f32)(row + 1) / MAP_WIDTH * 2 - 1);
-        
-        // color
-        Color tile_color;
-        switch (game.map[tile_idx])
-        {
-            case 1:
-                tile_color.r = 0.6;
-                tile_color.g = 0.3;
-                tile_color.b = 0.2;
-                break;
-            case 2:
-                tile_color.r = 0;
-                tile_color.g = 0.3;
-                tile_color.b = 0.6;
-                break;
-            case 3:
-                tile_color.r = 0.7;
-                tile_color.g = 0.7;
-                tile_color.b = 0;
-                break;
-            default:
-                tile_color.r = 0.5;
-                tile_color.g = 0.5;
-                tile_color.b = 0.5;
-        }
-        game.vertices[top_left_vertex_idx + 2]     = tile_color.r;
-        game.vertices[top_left_vertex_idx + 3]     = tile_color.g;
-        game.vertices[top_left_vertex_idx + 4]     = tile_color.b;
-        game.vertices[top_right_vertex_idx + 2]    = tile_color.r;
-        game.vertices[top_right_vertex_idx + 3]    = tile_color.g;
-        game.vertices[top_right_vertex_idx + 4]    = tile_color.b;
-        game.vertices[bottom_left_vertex_idx + 2]  = tile_color.r;
-        game.vertices[bottom_left_vertex_idx + 3]  = tile_color.g;
-        game.vertices[bottom_left_vertex_idx + 4]  = tile_color.b;
-        game.vertices[bottom_right_vertex_idx + 2] = tile_color.r;
-        game.vertices[bottom_right_vertex_idx + 3] = tile_color.g;
-        game.vertices[bottom_right_vertex_idx + 4] = tile_color.b;
-    }
+    for (u32 tile_idx = 0; tile_idx < NUM_TILES; tile_idx++)
+        update_tile_vertex_data(tile_idx);
 
     vao_bind(game.vao);
     vbo_bind(game.vbo);
@@ -243,6 +252,13 @@ void game_query_direction(u8 direction)
 
 void game_init(u32 argc, char** argv) 
 {   
+    game.argc = argc;
+    game.argv = argv;
+    game_restart();
+}
+
+void game_restart()
+{
     game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
     game.playing = true;
@@ -253,7 +269,7 @@ void game_init(u32 argc, char** argv)
     init_snake();
     init_game_gfx();
 
-    if (argc == 1)
+    if (game.argc == 1)
     {
         game.log = fopen("logs/log.txt", "w");
         game.mode = 'w';

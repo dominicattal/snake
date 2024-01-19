@@ -3,8 +3,12 @@
 
 int main(int argc, char** argv) 
 {
-    assert(argc <= 2);
+    if (argc == 1)
+    {
+        printf("Missing arguments");
+        return 1;
+    }
     window_init(argc, argv);
-    window_loop(argc, argv);
+    window_loop();
     return 0;
 }

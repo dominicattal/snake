@@ -15,9 +15,9 @@ struct Window
 typedef struct Window Window;
 
 void window_init(u32 argc, char** argv);
-void window_loop(u32 argc, char** argv);
+void window_loop();
 void window_exit();
 
-void process_input(u32 argc, char** argv);
+void process_input();
 
 #endif 
