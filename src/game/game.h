@@ -5,6 +5,7 @@
 #include "../gfx/vao.h"
 #include "../gfx/vbo.h"
 #include "../util/util.h"
+#include "../ai/ai.h"
 
 #define MAP_WIDTH 21
 #define MAP_HEIGHT 21
@@ -34,6 +35,7 @@ struct Game
     FILE* log;
     char mode;
     u32 food_idx;
+    AI ai;
     u32 argc;
     char** argv;
 };
@@ -43,7 +45,7 @@ typedef struct Game Game;
 void game_query_direction(u8 direction);
 
 void game_init(u32 argc, char** argv);
-void game_restart();
+void game_setup();
 void game_update();
 void game_render();
 void game_exit();

@@ -2,16 +2,6 @@
 
 Game game;
 
-static void print_map()
-{
-    for (int i = 0; i < NUM_TILES; i++)
-    {
-        printf("%d", game.map[i]);
-        if (i % MAP_WIDTH == MAP_WIDTH - 1)
-            printf("\n");
-    }
-}
-
 static void init_vertex_data()
 {
     game.map = calloc(NUM_TILES, sizeof(u8));
@@ -155,7 +145,7 @@ static void set_snake_direction()
 
 static void create_food()
 {
-    if (game.mode == 'w')
+    if (game.mode != 'r')
     {
         u32 food_idx = rand_range(NUM_TILES);
         while (game.map[food_idx] != 0)
@@ -213,7 +203,7 @@ static void update_map()
             game.snake_head = new_snake_head;
             game.snake_length++;
             game.map[new_snake_head_idx] = 2;
-            if (game.mode == 'w')
+            if (game.mode != 'r')
                 create_food();
             break;
         default:
@@ -222,7 +212,7 @@ static void update_map()
     }
 }
 
-static void get_next_line()
+static void read_next_line()
 {
     char c = '0';
     char line[10];
@@ -242,7 +232,69 @@ static void get_next_line()
     u32 dir = strtol(&line[0], &output, 10);
     game.food_idx = strtol(&line[2], &output, 10);
     game_query_direction(dir);
-    create_food();
+}
+
+static void setup_mode_player()
+{
+    game.log = fopen("logs/player/game.txt", "w");
+}
+
+static void setup_mode_read()
+{
+    game.log = fopen("logs/player/game.txt", "r");
+    read_next_line();
+}
+
+static void setup_mode_ai()
+{
+    game.log = fopen("logs/ai0/game0.txt", "w");
+}
+
+static void init_file()
+{
+    switch (game.mode)
+    {
+        case 'p':
+            setup_mode_player();
+            break;
+        case 'r':
+            setup_mode_read();
+            break;
+        case 'a':
+            setup_mode_ai();
+            break;
+        case 't':
+            break;
+        default:
+            printf("Something went wrong");
+            exit(1);
+    }
+}
+
+static void init_compiler_args(u32 argc, char** argv)
+{
+    if (strlen(argv[1]) > 1 || strchr("wpar", argv[1][0]) == NULL)
+    {
+        printf("Invalid mode ");
+        printf(argv[1]);
+        exit(1);
+    }
+    game.mode = argv[1][0]; 
+    if (game.mode == 'a')
+    {
+        if (argc < 3)
+        {
+            printf("Missing AI ID");
+            exit(1);
+        }
+        if (atoi(argv[2]) == 0)
+        {
+            printf("Invalid AI ID");
+            exit(1);
+        }
+        game.ai.ID = atoi(argv[2]);
+        AI_init();
+    }
 }
 
 void game_query_direction(u8 direction)
@@ -252,12 +304,11 @@ void game_query_direction(u8 direction)
 
 void game_init(u32 argc, char** argv) 
 {   
-    game.argc = argc;
-    game.argv = argv;
-    game_restart();
+    init_compiler_args(argc, argv);
+    game_setup();
 }
 
-void game_restart()
+void game_setup()
 {
     game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
@@ -268,19 +319,8 @@ void game_restart()
     init_map();
     init_snake();
     init_game_gfx();
-
-    if (game.argc == 1)
-    {
-        game.log = fopen("logs/log.txt", "w");
-        game.mode = 'w';
-        create_food();
-    }
-    else 
-    {
-        game.log = fopen("logs/log.txt", "r");
-        game.mode = 'r';
-        get_next_line();
-    }
+    init_file();
+    create_food();
 
     update_vertex_data();
 }
@@ -289,10 +329,13 @@ void game_update()
 {
     if (game.playing && glfwGetTime() > game.last_move + game.game_speed)
     {
-        if (game.mode == 'w')
+        if (game.mode == 'p')
             fprintf(game.log, "%d %d\n", game.query_direction, game.food_idx);
         else
-            get_next_line();
+        {
+            read_next_line();
+            create_food();
+        }
         set_snake_direction();
         game.last_move = glfwGetTime();
         if (!snake_started_moving())

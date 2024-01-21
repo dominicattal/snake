@@ -52,7 +52,7 @@ void process_input()
     if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS)
         game_query_direction(1);
     if (glfwGetKey(window.handle, GLFW_KEY_R) == GLFW_PRESS)
-        game_restart();
+        game_setup();
 }
 
 
