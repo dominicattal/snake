@@ -5,4 +5,4 @@ compiler commands
 ./snake p [filename]      // playable snake game that writes to file. If no filename specified, write to default
 ./snake a [id] [filename] // ai with specified id plays a game of snake and writes to filename. if not specified, writes to default
 ./snake t [id]            // trains ai and records logs of all the games
-./snake r [filename]      // read snake game from file. If no filename specified, read from default
+./snake r [filename]      // read snake game from file. If no filename specified, read from player default

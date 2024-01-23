@@ -6,6 +6,8 @@
 struct AI 
 {
     u32 ID;
+    char* config_file_name;
+    FILE* config;
 };
 
 typedef struct AI AI;

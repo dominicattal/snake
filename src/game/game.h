@@ -33,6 +33,7 @@ struct Game
     Node* snake_tail;
     bool playing;
     FILE* log;
+    char* file_name;
     char mode;
     u32 food_idx;
     AI ai;
