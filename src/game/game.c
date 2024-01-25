@@ -260,11 +260,6 @@ static void init_file()
         case 'r':
             setup_mode_read();
             break;
-        case 'a':
-            setup_mode_write();
-            break;
-        case 't':
-            break;
         default:
             printf("Something went wrong");
             exit(1);
@@ -277,8 +272,6 @@ static void init_file_name(u32 argc, char** argv)
     strcat(game.file_name, "logs/");
     if (game.mode == 'p')
     {
-        
-        strcat(game.file_name, "player/");
         if (argc < 3)
             strcat(game.file_name, "default");
         else
@@ -288,39 +281,10 @@ static void init_file_name(u32 argc, char** argv)
     else if (game.mode == 'r')
     {
         if (argc < 3)
-            strcat(game.file_name, "player/default");
+            strcat(game.file_name, "default");
         else
             strcat(game.file_name, argv[2]);
         strcat(game.file_name, ".txt\0");
-    }
-    else if (game.mode == 'a' || game.mode == 't')
-    {
-        if (argc < 3)
-        {
-            printf("Missing AI ID");
-            exit(1);
-        }
-        if (atoi(argv[2]) == 0)
-        {
-            printf("Invalid AI ID {%s}", argv[2]);
-            exit(1);
-        }
-        game.ai.ID = atoi(argv[2]);
-        strcat(strcat(game.file_name, "ai"), argv[2]);
-        _mkdir(game.file_name);
-        strcat(game.file_name, "/");
-        game.ai.config_file_name = calloc(strlen(game.file_name), sizeof(char));
-        strcpy(game.ai.config_file_name, game.file_name);
-        strcat(game.ai.config_file_name, "config.txt");
-        game.ai.config = fopen(game.ai.config_file_name, "a");
-        if (game.mode == 'a')
-        {
-            if (argc < 4)
-                strcat(game.file_name, "default");
-            else
-                strcat(game.file_name, argv[3]);
-            strcat(game.file_name, ".txt\0");
-        }
     }
     else
     {
@@ -337,7 +301,7 @@ static void init_compiler_args(u32 argc, char** argv)
         init_file_name(argc, argv);
         return;
     }
-    if (strlen(argv[1]) > 1 || strchr("wpar", argv[1][0]) == NULL)
+    if (strlen(argv[1]) > 1 || strchr("pr", argv[1][0]) == NULL)
     {
         printf("Invalid mode {%s}", argv[1]);
         exit(1);
@@ -359,6 +323,8 @@ void game_init(u32 argc, char** argv)
 
 void game_setup()
 {
+    if (game.playing)
+        return;
     game.game_speed = 0.1; 
     game.last_move = glfwGetTime();
     game.playing = true;
@@ -378,8 +344,6 @@ void game_update()
 {
     if (game.playing && glfwGetTime() > game.last_move + game.game_speed)
     {
-        if (game.mode == 'a')
-            game.query_direction = AI_choose_direction();
         if (game.mode != 'r')
             fprintf(game.log, "%d %d\n", game.query_direction, game.food_idx);
         else
@@ -409,11 +373,9 @@ void game_exit()
     free(game.vertices);
     free(game.indices);
     free(game.file_name);
-    free(game.ai.config_file_name);
     shader_destroy(game.shader);
     vao_destroy(game.vao);
     vbo_destroy(game.vbo);
     vbo_destroy(game.ebo);
     fclose(game.log);
-    fclose(game.ai.config);
 }
